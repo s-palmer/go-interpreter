@@ -3,7 +3,7 @@
 // need type attribute to distinguish b/w diff types of tokens
 // need field to hold literal value of token so we can reuse it
 
-package Token
+package token
 
 // defined this as a string so we can use many diff values as TokenTypes and means we can distinguish between different ypes of tokens
 // might not be most performant but for this example, it will suffice
