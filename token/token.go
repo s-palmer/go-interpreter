@@ -5,7 +5,7 @@
 
 package token
 
-// defined this as a string so we can use many diff values as TokenTypes and means we can distinguish between different ypes of tokens
+// defined this as a string so we can use many diff values as TokenTypes and means we can distinguish between different types of tokens
 // might not be most performant but for this example, it will suffice
 type TokenType string
 
