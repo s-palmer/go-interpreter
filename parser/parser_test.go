@@ -95,3 +95,33 @@ return 993322;
 		}
 	}
 }
+
+func TestIdentifierExpression(t *testing.T) {
+  input := "foobar;"
+
+  l := lexer.New(input)
+  p := New(l)
+  program := p.ParseProgram()
+  checkParserErrors(t, p)
+
+  if len(program.Statements) != 1 {
+    t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+  }
+  // type assertion - The type assertion x.(T) checks if the interface value x holds the concrete type T. 
+  // It returns two values:
+  // - A value of type T
+  // - A boolean indicating whether the assertion succeeded
+  // stmt will be of type *ast.ExpressionStatement if the assertion succeeded
+  // ok will be a boolean, true for success, false if failed
+  stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+  if !ok {
+    t.Fatalf("exp not *ast.Identifier. got=%T", stmt.Expression)
+  }
+  ident, ok := stmt.Expression.(*ast.Identifier)
+  if ident.Value != "foobar" {
+    t.Errorf("ident.Value not %s. got=%s", "foobar", ident.Value)
+  }
+  if ident.TokenLiteral() != "foobar" {
+    t.Errorf("ident.TokenLiteral not %s. got=%s", "foobar", ident.TokenLiteral())
+  }
+}
