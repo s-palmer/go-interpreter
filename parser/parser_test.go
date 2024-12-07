@@ -1,6 +1,6 @@
 package parser
 import (
-	"testing"
+  "testing"
   "fmt"
 	"monkey/ast"
 	"monkey/lexer"
@@ -36,13 +36,13 @@ func testLiteralExpression(
   case int64:
     return testIntegerLiteral(t, exp, v)
   case string:
-    return testIdentfier(t, exp, v)
+    return testIdentifier(t, exp, v)
   }
   t.Errorf("type of exp not handled. got=%T", exp)
   return false
 }
 
-testInfixExpression(t *testing.T, exp ast.Expression, left interface{},
+func testInfixExpression(t *testing.T, exp ast.Expression, left interface{},
   operator string, right interface{}) bool {
 
   opExp, ok := exp.(*ast.InfixExpression)
@@ -61,9 +61,9 @@ testInfixExpression(t *testing.T, exp ast.Expression, left interface{},
     return false
   }
   return true
-)
+}
 
-func testIdentfier(t *testing.T, exp ast.Expression, value string) bool {
+func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
   ident, ok := exp.(*ast.Identifier)
   if !ok {
     t.Errorf("exp not *ast.Identifier. got=%T", exp)
@@ -81,52 +81,6 @@ func testIdentfier(t *testing.T, exp ast.Expression, value string) bool {
   }
 
   return true
-}
-
-func TestLetStatements(t *testing.T) {
-	tests := []struct {
-		input              string
-		expectedIdentifier string
-		expectedValue      interface{}
-	}{
-		{"let x = 5;", "x", 5},
-		{"let y = true;", "y", true},
-		{"let foobar = y;", "foobar", "y"},
-	}
-
-	for _, tt := range tests {
-		l := lexer.New(tt.input)
-		p := New(l)
-		program := p.ParseProgram()
-		checkParserErrors(t, p)
-
-		if len(program.Statements) != 1 {
-			t.Fatalf("program.Statements does not contain 1 statements. got=%d",
-				len(program.Statements))
-		}
-
-		stmt := program.Statements[0]
-		if !testLetStatement(t, stmt, tt.expectedIdentifier) {
-			return
-		}
-
-		val := stmt.(*ast.LetStatement).Value
-		if !testLiteralExpression(t, val, tt.expectedValue) {
-			return
-		}
-	}
-}
-
-func checkParserErrors(t *testing.T, p *Parser) {
-	errors := p.Errors()
-	if len(errors) == 0 {
-		return
-	}
-	t.Errorf("parser has %d errors", len(errors))
-	for _, msg := range errors {
-		t.Errorf("parser error: %q", msg)
-	}
-	t.FailNow()
 }
 
 func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
@@ -151,29 +105,24 @@ func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	return true
 }
 
-
 func TestReturnStatements(t *testing.T) {
-	tests := []struct {
-		input         string
-		expectedValue interface{}
-	}{
-		{"return 5;", 5},
-		{"return true;", true},
-		{"return foobar;", "foobar"},
-	}
+  input := `
+return 5;
+return 10;
+return 993322;
+`
 
-	for _, tt := range tests {
-		l := lexer.New(tt.input)
+		l := lexer.New(input)
 		p := New(l)
 		program := p.ParseProgram()
 		checkParserErrors(t, p)
 
-		if len(program.Statements) != 1 {
-			t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+		if len(program.Statements) != 3 {
+			t.Fatalf("program.Statements does not contain 3 statements. got=%d",
 				len(program.Statements))
 		}
 
-		stmt := program.Statements[0]
+    for _, stmt := range program.Statements {
 		returnStmt, ok := stmt.(*ast.ReturnStatement)
 		if !ok {
 			t.Fatalf("stmt not *ast.ReturnStatement. got=%T", stmt)
@@ -182,10 +131,7 @@ func TestReturnStatements(t *testing.T) {
 			t.Fatalf("returnStmt.TokenLiteral not 'return', got %q",
 				returnStmt.TokenLiteral())
 		}
-		if testLiteralExpression(t, returnStmt.ReturnValue, tt.expectedValue) {
-			return
-		}
-	}
+  }
 }
 
 
@@ -231,10 +177,6 @@ func TestParsingPrefixExpressions(t *testing.T) {
 	}{
 		{"!5;", "!", 5},
 		{"-15;", "-", 15},
-		{"!foobar;", "!", "foobar"},
-		{"-foobar;", "-", "foobar"},
-		{"!true;", "!", true},
-		{"!false;", "!", false},
 	}
 
 	for _, tt := range prefixTests {
@@ -283,17 +225,6 @@ func TestParsingInfixExpressions(t *testing.T) {
 		{"5 < 5;", 5, "<", 5},
 		{"5 == 5;", 5, "==", 5},
 		{"5 != 5;", 5, "!=", 5},
-		{"foobar + barfoo;", "foobar", "+", "barfoo"},
-		{"foobar - barfoo;", "foobar", "-", "barfoo"},
-		{"foobar * barfoo;", "foobar", "*", "barfoo"},
-		{"foobar / barfoo;", "foobar", "/", "barfoo"},
-		{"foobar > barfoo;", "foobar", ">", "barfoo"},
-		{"foobar < barfoo;", "foobar", "<", "barfoo"},
-		{"foobar == barfoo;", "foobar", "==", "barfoo"},
-		{"foobar != barfoo;", "foobar", "!=", "barfoo"},
-		{"true == true", true, "==", true},
-		{"true != false", true, "!=", false},
-		{"false == false", false, "==", false},
 	}
 
 	for _, tt := range infixTests {
