@@ -50,9 +50,6 @@ func New(l *lexer.Lexer) *Parser {
 		l: l,
 		errors: []string{},
 	}
-	// read 2 tokens, so curToken and peekToken are both set
-	p.nextToken()
-	p.nextToken()
 
   //initialise prefixParseFns map on Parser and register a parsing function
   p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
@@ -71,7 +68,11 @@ func New(l *lexer.Lexer) *Parser {
   p.registerInfix(token.LT, p.parseInfixExpression)
   p.registerInfix(token.GT, p.parseInfixExpression)
 
-	return p
+  // read 2 tokens, so curToken and peekToken are both set
+	p.nextToken()
+	p.nextToken()
+
+  return p
 }
 
 func (p *Parser) Errors() []string {
