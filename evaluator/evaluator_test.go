@@ -266,3 +266,39 @@ func TestFunctionApplication(t *testing.T) {
 		testIntegerObject(t, testEval(tt.input), tt.expected)
 	}
 }
+
+// a closure is a function that "encloses" and retains access to variables from its outer scope,
+// even after that outer scope has finished executing
+// for example:
+// let newAdder = fn(x) { // x = 2 (because of how its defined by addTwo(2))
+//  fn(y) { x + y };      // creates closure that remembers that x = 2
+// };
+// let addTwo = newAdder(2); // addTwo is now fn(y) { 2 + y } - creates  new environment E1 where x = 2. Returns the inner function which maintains reference to E1
+// addTwo(2);                // returns 4 - calling addTwo(2) creates a new environment E2 where y = 2. E2's outer environment is E1, where x = 2.
+// when looking up variables, it first checks its local scope (store in this implementation of Environment), and then checks the outer scopes, via the *outer in the struct, which gives us the linked structure.
+// NewEnclosedEnvironment function creates this chain: E2 (y=2) -> E1 (x=2) -> Global environment
+// this means that when evaluating x + y in the innermost function:
+// 1) Looks for y in the current environment (E2) and finds 2.
+// 2) Looks for x in the current environment (E2) and doesn't find anything.
+// 3) Looks for x in the outer environment (E1) and finds 2.
+// 4) Completes 2 + 2 = 4
+//
+// newAdder in this example is a higher-order function - that is a function that either returns other functions or takes them as arguments.
+// Here newAdder returns another function, but not just any function - a closure.
+// addTwo is bound to the closure that's returned when calling newAdder with 2 as the sole argument.
+//
+// What makes addTwo a closure? The bindings it has access to when called.
+// It not only has access to the arguments of the call (the y parameter), it can also reach the value of x that was bound at the time of the newAdder(2) call,
+// even though that binding is long out of scope and doesn't exist in the current env. x isn't bound to anything in the top-level env, but addTwo can still access it.
+
+func TestClosures(t *testing.T) {
+	input := `
+  let newAdder = fn(x) {
+    fn(y) { x + y};
+  };
+
+  let addTwo = newAdder(2);
+  addTwo(2);`
+
+	testIntegerObject(t, testEval(input), 4)
+}
