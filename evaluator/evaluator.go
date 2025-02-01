@@ -72,6 +72,12 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	switch {
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(operator, left, right)
+		// we're using pointer comparison here to check for equality between bools. we're always using pointers to our objects and in the case of bools,
+		// we just have two, TRUE and FALSE. therefore if something has the same value as TRUE (i.e. the memory address), then it's true.
+	case operator == "==":
+		return nativeBoolToBooleanObject(left == right)
+	case operator == "!=":
+		return nativeBoolToBooleanObject(left != right)
 	default:
 		return NULL
 	}
