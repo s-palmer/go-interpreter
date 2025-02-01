@@ -74,6 +74,9 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 		return evalIntegerInfixExpression(operator, left, right)
 		// we're using pointer comparison here to check for equality between bools. we're always using pointers to our objects and in the case of bools,
 		// we just have two, TRUE and FALSE. therefore if something has the same value as TRUE (i.e. the memory address), then it's true.
+		// however, in the case of integers (or other data types), this isn't the case as in the case of *object.Integer, we're always allocating new instances of object.Integer and thus use new pointers.
+		// we can't compare these different pointers to different instances otherwise 5 == 5 would eval to false. therefore the case statements for bools need to come after the ones for integers so
+		// they can be evaluated before we come to the pointer comparison.
 	case operator == "==":
 		return nativeBoolToBooleanObject(left == right)
 	case operator == "!=":
