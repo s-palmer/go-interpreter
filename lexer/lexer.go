@@ -1,4 +1,5 @@
 package lexer
+
 import "monkey/token"
 
 type Lexer struct {
@@ -46,7 +47,7 @@ func (l *Lexer) NextToken() token.Token {
 			literal := string(ch) + string(l.ch)
 			tok = token.Token{Type: token.EQ, Literal: literal}
 		} else {
-		tok = newToken(token.ASSIGN, l.ch)
+			tok = newToken(token.ASSIGN, l.ch)
 		}
 	case '+':
 		tok = newToken(token.PLUS, l.ch)
@@ -56,10 +57,10 @@ func (l *Lexer) NextToken() token.Token {
 		if l.peekChar() == '=' {
 			ch := l.ch
 			l.readChar()
-			literal:= string(ch) + string(l.ch)
+			literal := string(ch) + string(l.ch)
 			tok = token.Token{Type: token.NOT_EQ, Literal: literal}
 		} else {
-		tok = newToken(token.BANG, l.ch)
+			tok = newToken(token.BANG, l.ch)
 		}
 	case '/':
 		tok = newToken(token.SLASH, l.ch)
@@ -86,6 +87,9 @@ func (l *Lexer) NextToken() token.Token {
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
+	case '"':
+		tok.Literal = l.readString()
+		tok.Type = token.STRING
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier()
@@ -120,6 +124,17 @@ func (l *Lexer) readNumber() string {
 	position := l.position
 	for isDigit(l.ch) {
 		l.readChar()
+	}
+	return l.input[position:l.position]
+}
+
+func (l *Lexer) readString() string {
+	position := l.position + 1
+	for {
+		l.readChar()
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
 	}
 	return l.input[position:l.position]
 }
